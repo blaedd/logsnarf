@@ -1,0 +1,31 @@
+[
+  {
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "name": "field_a"
+  },
+  {
+    "type": "INTEGER",
+    "name": "field_b"
+  },
+  {
+    "type": "TIMESTAMP",
+    "mode": "REPEATED",
+    "name": "repeated_field"
+  },
+  {
+    "type": "RECORD",
+    "name": "record",
+    "mode": "REQUIRED",
+    "fields": [
+      {
+        "type": "STRING",
+        "name": "name"
+      },
+      {
+        "type": "FLOAT",
+        "name": "float"
+      }
+    ]
+  }
+]

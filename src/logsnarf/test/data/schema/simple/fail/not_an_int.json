@@ -1,0 +1,7 @@
+{
+  "field_a": "a string",
+  "field_b": "hello",
+  "record": {
+    "name": "foo"
+  }
+}

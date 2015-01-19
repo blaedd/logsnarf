@@ -1,0 +1,156 @@
+[
+  {
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "name": "msg"
+  },
+  {
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "name": "host"
+  },
+  {
+    "mode": "REQUIRED",
+    "type": "TIMESTAMP",
+    "name": "timereported"
+  },
+  {
+    "mode": "REQUIRED",
+    "type": "TIMESTAMP",
+    "name": "time"
+  },
+  {
+    "type": "STRING",
+    "name": "pname"
+  },
+  {
+    "type": "INTEGER",
+    "name": "pid"
+  },
+  {
+    "type": "STRING",
+    "name": "sev"
+  },
+  {
+    "type": "STRING",
+    "name": "service"
+  },
+  {
+    "type": "RECORD",
+    "name": "syslog",
+    "fields": [
+      {
+        "type": "STRING",
+        "name": "fac"
+      },
+      {
+        "type": "STRING",
+        "name": "pri"
+      }
+    ]
+  },
+  {
+    "type": "RECORD",
+    "name": "action",
+    "fields": [
+      {
+        "type": "STRING",
+        "name": "method"
+      },
+      {
+        "type": "STRING",
+        "name": "status"
+      },
+      {
+        "type": "STRING",
+        "name": "type"
+      }
+    ]
+  },
+  {
+    "type": "RECORD",
+    "name": "src",
+    "fields": [
+      {
+        "type": "STRING",
+        "name": "ifname"
+      },
+      {
+        "type": "STRING",
+        "name": "hwaddr"
+      },
+      {
+        "type": "STRING",
+        "name": "host"
+      },
+      {
+        "type": "STRING",
+        "name": "ipv4"
+      },
+      {
+        "type": "STRING",
+        "name": "ipv6"
+      },
+      {
+        "type": "INTEGER",
+        "name": "port"
+      }
+    ]
+  },
+  {
+    "type": "RECORD",
+    "name": "dst",
+    "fields": [
+      {
+        "type": "STRING",
+        "name": "ifname"
+      },
+      {
+        "type": "STRING",
+        "name": "hwaddr"
+      },
+      {
+        "type": "STRING",
+        "name": "host"
+      },
+      {
+        "type": "STRING",
+        "name": "ipv4"
+      },
+      {
+        "type": "STRING",
+        "name": "ipv6"
+      },
+      {
+        "type": "INTEGER",
+        "name": "port"
+      }
+    ]
+  },
+  {
+    "type": "RECORD",
+    "name": "user",
+    "fields": [
+      {
+        "type": "STRING",
+        "name": "name"
+      },
+      {
+        "type": "INTEGER",
+        "name": "id"
+      },
+      {
+        "type": "INTEGER",
+        "name": "eid"
+      },
+      {
+        "type": "STRING",
+        "name": "euser"
+      },
+      {
+        "type": "STRING",
+        "name": "domain"
+      }
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "field_a": "name",
+  "field_b": 43,
+  "repeated_field": 1420709378.892028,
+  "record": {
+    "name": "name",
+    "float": 43.2
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "field_a": "name",
+  "field_b": "43",
+  "repeated_field": "2015-01-08 20:29:38.892028",
+  "record": {
+    "name": "name",
+    "float": "43.2"
+  }
+}
