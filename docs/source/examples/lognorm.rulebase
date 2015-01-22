@@ -1,0 +1,74 @@
+# Rules for dhcpd
+rule=: %action!method:word% from %src!hwaddr:word% via %src!ifname:word%
+rule=: %action!method:word% on %src!ipv4:word% to %src!hwaddr:word% (%src!host:char-to:)%)via %src!ifname:word%
+rule=: %action!method:word% on %src!ipv4:word% to %src!hwaddr:word% via %src!ifname:word%
+rule=: %action!method:word% for %src!ipv4:word% (%dst!ipv4:ipv4%) from %src!hwaddr:word% (%src!host:char-to:)%)  via %src!ifname:word%
+rule=: %action!method:word% for %src!ipv4:word% (%dst!ipv4:ipv4%) from %src!hwaddr:word%  via %src!ifname:word%
+rule=: %action!method:word% for %src!ipv4:word% from %src!hwaddr:word% (%src!host:char-to:)%)  via %src!ifname:word%
+rule=: %action!method:word% for %src!ipv4:word% from %src!hwaddr:word%  via %src!ifname:word%
+rule=: %action!method:word% of %src!ipv4:word% from %src!hwaddr:word% (%src!host:char-to:)%) via %src!ifname:word% %-:rest%
+rule=: %action!method:word% of %src!ipv4:word% from %src!hwaddr:word% via %src!ifname:word% %-:rest%
+
+# Rules for dhcpclient
+rule=: %action!method:word% on %src!ifname:word% to %dst!ipv4:ipv4% port %dst!port:number%%-:rest%
+rule:= %action!method:word for %src!ipv4:ipv4% from %dst!hwaddr:word% via %src!ifname:word%
+rule:= %action!method:word on %src!ipv4:ipv4% to %src!hwaddr:word% via %src!ifname:word%
+
+# Rules for sshd
+rule=auth,success: Accepted %action!method:word% for %user!name:char-to:@%@%user!domain:word% from %src!ipv4:ipv4% port %src!port:number% %-:rest%
+rule=auth,success: Accepted %action!method:word% for %user!name:char-to:@%@%user!domain:word% from %src!ipv6:word% port %src!port:number% %-:rest%
+rule=auth,success: Accepted %action!method:word% for %user!name:word% from %src!ipv4:ipv4% port %src!port:number% %-:rest%
+rule=auth,success: Accepted %action!method:word% for %user!name:word% from %src!ipv6:word% port %src!port:number% %-:rest%
+rule=auth,failure: Failed %action!method:word% for %user!name:char-to:@%@%user!domain:word% from %src!ipv4:ipv4% port %src!port:number% %-:rest%
+rule=auth,failure: Failed %action!method:word% for %user!name:char-to:@%@%user!domain:word% from %src!ipv6:word% port %src!port:number% %-:rest%
+rule=auth,failure: Failed %action!method:word% for %user!name:word% from %src!ipv4:ipv4% port %src!port:number% %-:rest%
+rule=auth,failure: Failed %action!method:word% for %user!name:word% from %src!ipv6:word% port %src!port:number% %-:rest%
+
+# Rules for pam
+rule=auth,success: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): user %user!name:word% authenticated as %user!name:char-to:@%@%user!domain:word%
+rule=auth,success: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): user %user!name:word% authenticated as %user!name:word%
+rule=: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): session %action!status:word% for user %user!euser:word% by %user!name:char-to:(%(uid=%user!id:number%)
+rule=: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): session %action!status:word% for user %user!name:char-to:@%@%user!domain:word% %user!name:word% by (uid=%user!id:number%)
+rule=: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): session %action!status:word% for user %user!name:char-to:@%@%user!domain:word% %user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser= rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname=%user!name:word% uid= euid=%user!eid:number% tty=%-:word% ruser= rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid=%user!id:number% euid=%user!eid:number% tty=%-:word% ruser= rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser=%user!name:word% rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word% user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser= rhost=%src!ipv4:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser= rhost= user=%user!name:word%
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): authentication failure; logname= uid= euid=%user!eid:number% tty=%-:word% ruser= rhost=
+rule=auth,failure: pam_%action!method:char-to:(%(%-:char-to::%:%action!type:char-to:)%): received for user %user!name:char-to::%: %-:number% (%msg:char-to:)%)
+
+# Rules for su
+rule=authorize,success: Successful su for %user!euser:word% by %user!name:word%
+
+
+annotate=success:+action.status="success"
+annotate=failure:+action.status="failure"
+annotate=auth:+action.type="auth"
+annotate=authorize:+action.type="authz"

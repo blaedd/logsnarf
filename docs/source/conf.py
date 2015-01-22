@@ -51,7 +51,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'logsnarf'
 # noinspection PyShadowingBuiltins
-copyright = u'2014, David MacKinnon'
+copyright = u'2015, David MacKinnon'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

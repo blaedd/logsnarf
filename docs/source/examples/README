@@ -1,0 +1,10 @@
+These are not by any means *recommended* configurations, merely examples
+to help you get started.
+
+The syslog_schema.json is the schema I'm using, loosely based on the CEE/Lumberjack schema
+https://fedorahosted.org/lumberjack/
+http://cee.mitre.org/
+
+logsnarf-rsyslog.conf presents an rsyslog rulebase, which can be applied to an input, and will output a format that
+corresponds to that schema. The feature extraction is done in lognorm.rulebase, and is, as you see, quite basic.
+
