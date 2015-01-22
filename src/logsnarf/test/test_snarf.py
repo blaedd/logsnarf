@@ -114,8 +114,8 @@ class LogsnarfTestCase(unittest.TestCase):
 
     def test_checkPattern(self):
         patterns = {
-            filepath.FilePath('/var/log'): re.compile(r'.*\.log'),
-            filepath.FilePath('/var2/log/'): None,
+            '/var/log': re.compile(r'.*\.log'),
+            '/var2/log/': None,
         }
         self.snarf._patterns = patterns
         self.assertTrue(
