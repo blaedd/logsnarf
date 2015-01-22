@@ -50,7 +50,7 @@ An example configuration file::
         schema=syslog_schema.json
 
         [app2]
-        table_name_schema=apache_{YEAR}{MONTH}{DAY}
+        table_name_fmt=apache_{YEAR}{MONTH}{DAY}
         directories=["/var/log/apache"]
         recursive=False
         pattern=(access|error)\.log$
@@ -118,7 +118,7 @@ BigQuery uploader related
              Lines kept here are at risk of loss, since they are
              marked "read" by the log watcher when pushed to the uploader.
              Too low, and you'll be waiting on BigQuery inserts.
-:table_name_schema: **default value: logs_{YEAR}{MONTH}{DAY}**
+:table_name_fmt: **default value: logs_{YEAR}{MONTH}{DAY}**
                     When creating tables, this is used for naming, if the
                     entries don't contain a 'table' field. The schema can 
                     include {YEAR} {MONTH} and {DATE} substitutions, that
@@ -128,6 +128,6 @@ BigQuery uploader related
 Other
 -----
 :default_domain: used by additional verifiers, to insert a domain on
-                 non-qualified hostnames in 'host', 'src.host', or 'dst'host'
+                 non-qualified hostnames in 'host', 'src.host', or 'dst.host'
                  fields
 
