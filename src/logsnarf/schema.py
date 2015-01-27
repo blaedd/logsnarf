@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 # -*- test-case-name: logsnarf.test.test_schema -*-
 # pylint: disable=invalid-name
-import logging
+
 import datetime
+import hashlib
+import logging
 import time
 import re
 
@@ -16,9 +18,19 @@ from . import errors
 
 REQUIRED_FIELD_KEYS = ['name', 'type']
 OTHER_FIELD_KEYS = ['mode', 'description', 'fields']
-VALID_TYPES = ['STRING', 'INTEGER', 'FLOAT', 'BOOLEAN', 'TIMESTAMP', 'RECORD']
-VALID_MODES = ['NULLABLE', 'REPEATED', 'REQUIRED']
-
+VALID_TYPES = {
+    'STRING': 1,
+    'INTEGER': 2,
+    'FLOAT': 3,
+    'BOOLEAN': 4,
+    'TIMESTAMP': 5,
+    'RECORD': 6,
+}
+VALID_MODES = {
+    'NULLABLE': 1,
+    'REPEATED': 2,
+    'REQUIRED': 3,
+}
 
 def datetime_to_unix(dt):
     """Convert a datetime.datetime object into a unix timestamp.
@@ -45,7 +57,7 @@ class Schema(object):
 
     """
 
-    ignore_fields = ['table']
+    ignore_fields = ['table', '_sha1']
     """Fields in this list are permitted, even if they aren't part of the
     schema. In Logsnarf we use this for the tables field, which tells us
     which table this log line belongs in, and we remove it from the entry
@@ -155,9 +167,11 @@ class Schema(object):
         """
         if not isinstance(json_string, unicode):
             json_string = json_string.decode('utf-8')
-        return self._postProcess(
+        obj = self._postProcess(
             json.loads(json_string, encoding='utf-8',
                        object_hook=self._load_hook))
+        obj['_sha1'] = hashlib.sha1(json_string).hexdigest()
+        return obj
 
     def validateSchema(self):
         """Validate that the JSON document we loaded as schema, is valid."""
@@ -206,14 +220,16 @@ class Schema(object):
             'longer than 128 characters.')
 
         assert field['type'] in VALID_TYPES, \
-            'type must be one of %s, not %s' % (VALID_TYPES, field['type'])
-
-        if field['type'] == 'RECORD':
+            'type must be one of %s, not %s' % (VALID_TYPES.keys(),
+                                                field['type'])
+        field['type'] = VALID_TYPES[field['type']]
+        if field['type'] == VALID_TYPES['RECORD']:
             assert 'fields' in field, \
                 'a field of type RECORD must have fields defined.'
         if 'mode' in field:
             assert field['mode'] in VALID_MODES, \
-                'if set, mode must be one of %s' % VALID_MODES
+                'if set, mode must be one of %s' % VALID_MODES.keys()
+        field['mode'] = VALID_MODES[field['mode']]
         if 'description' in field:
             assert len(field['description']) < 16384, \
                 'description can be no longer than 16K'
@@ -253,7 +269,7 @@ class Schema(object):
             field_mode = self.field_dict[name].get('mode', None)
 
             # Repeated fields *may* be a list
-            if field_mode == 'REPEATED':
+            if field_mode == VALID_MODES['REPEATED']:
                 if isinstance(obj[field], list):
                     for i in range(len(obj[field])):
                         try:
@@ -263,7 +279,7 @@ class Schema(object):
                             raise errors.ValidationError(*e.args)
                     continue
             # For records, add the record fields to our stack.
-            if field_type == 'RECORD':
+            if field_type == VALID_TYPES['RECORD']:
                 for subfield in obj[field]:
                     fields.append((obj[field], name, subfield))
                 continue
@@ -287,14 +303,6 @@ class Schema(object):
 
         """
 
-        if isinstance(value, float) or isinstance(value, int):
-            return value
-
-        if isinstance(value, datetime.datetime):
-            if not value.tzinfo:
-                value.replace(tzinfo=self.default_tz)
-            return datetime_to_unix(value)
-
         # It might be a unix timestamp, but as a string.
         if isinstance(value, basestring):
             try:
@@ -313,6 +321,16 @@ class Schema(object):
                 self.log.error('Unable to process timestamp field with '
                                'value %s', value)
                 raise
+
+        if isinstance(value, float) or isinstance(value, int):
+            return value
+
+        if isinstance(value, datetime.datetime):
+            if not value.tzinfo:
+                value.replace(tzinfo=self.default_tz)
+            return datetime_to_unix(value)
+
+
         self.log.error('Passed an unknown type %r value %s to parse as a '
                        'timestamp.', value.__class__, value)
         raise errors.ValidationError('Unknown type in timestamp field.', value)

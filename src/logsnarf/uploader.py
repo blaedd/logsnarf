@@ -7,6 +7,7 @@ A class that implements :twisted:`twisted.internet.interfaces.IConsumer` for
 uploading logs to BigQuery.
 """
 import codecs
+import hashlib
 import logging
 import uuid
 import datetime
@@ -195,7 +196,9 @@ class BigQueryUploader(abstract._ConsumerMixin):
         if isinstance(data, dict):
             data = [data]
         for entry in data:
-            insert_id = uuid.uuid4()
+            insert_id = entry.pop('_sha1')
+            if insert_id is None:
+                insert_id = uuid.uuid4()
             if 'table' in entry:
                 table = entry.pop('table')
             else:
