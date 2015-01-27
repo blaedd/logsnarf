@@ -164,7 +164,7 @@ class LogSnarf(object):
         # Start with most specific (longest) path
         for pth in sorted(self._patterns, reverse=True,
                           key=len):
-            if path.path.startswith(pth.path):
+            if path.path.startswith(pth):
                 if self._patterns[pth] is None or \
                         self._patterns[pth].search(path.path):
                     return True
