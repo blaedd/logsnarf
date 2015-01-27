@@ -7,6 +7,7 @@ import httplib
 import logging
 import sys
 import ssl
+import threading
 import time
 import uuid
 
@@ -45,21 +46,26 @@ class BigQueryService(object):
         self.dataset = dataset
         self.tables = {}
         self.creds = creds
+        self.local = threading.local()
 
     @property
     def http(self):
         """Creates and authorizes a httplib2.Http() instance"""
-        http = httplib2.Http(timeout=60)
-        self.creds.authorize(http)
-        return http
+        if not hasattr(self.local, 'http'):
+            http = httplib2.Http(timeout=120)
+            self.creds.authorize(http)
+            self.local.http = http
+        return self.local.http
 
     @property
     def service(self):
         """Creates a BigQuery service."""
-        service = discovery.build('bigquery', 'v2', http=self.http)
-        if self.debug:
-            service.debug = True
-        return service
+        if not hasattr(self.local, 'service'):
+            self.local.service = discovery.build(
+                'bigquery', 'v2', http=self.http)
+            if self.debug:
+                self.local.service.debug = True
+        return self.local.service
 
     def updateTableList(self):
         """Update our internal cache of tables."""
@@ -123,6 +129,8 @@ class BigQueryService(object):
     def insertAll(self, table, table_schema, data, upload_id=None):
         """Insert rows into a table. Create the table if necessary.
 
+        This is typically called in the main thread.
+
         :param table: table to insert data to.
         :type table: str
         :param table_schema:
@@ -153,17 +161,31 @@ class BigQueryService(object):
             d.addCallback(cb, self.insertAll, table, table_schema, data,
                           upload_id)
         else:
-            tabledata = self.service.tabledata()
-            insert = tabledata.insertAll(
-                projectId=self.project,
-                datasetId=self.dataset,
-                tableId=table,
-                body={'rows': data})
             self.log.info('Starting upload %s', upload_id)
-            d = threads.deferToThread(insert.execute)
+            d = threads.deferToThread(self._doInsertAll, table, data)
             d.addErrback(self._errback, upload_id, table, table_schema, data)
 
         return d
+
+    def _doInsertAll(self, table, data):
+        """Work method for insertAll to do be called *inside* a worker thread.
+
+        :param table: table to insert data to.
+        :type table: str
+        :param data: the rows to be intersted. usually a list of dicts.
+        :type data: list(dict)
+        :return: Results of the insert.
+        :rtype:
+          https://cloud.google.com/bigquery/docs/reference/v2/tabledata
+          /insertAll#response
+        """
+        tabledata = self.service.tabledata()
+        insert = tabledata.insertAll(
+            projectId=self.project,
+            datasetId=self.dataset,
+            tableId=table,
+            body={'rows': data})
+        return insert.execute()
 
     def insertAll_s(self, table, table_schema, data, upload_id=None):
         """Synchronous version of :py:meth:`~.insertAll`.
