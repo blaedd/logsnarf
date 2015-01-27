@@ -32,6 +32,7 @@ VALID_MODES = {
     'REQUIRED': 3,
 }
 
+
 def datetime_to_unix(dt):
     """Convert a datetime.datetime object into a unix timestamp.
 
@@ -184,20 +185,20 @@ class Schema(object):
                 name, field = fields.pop()
                 self.validateSchemaField(field)
                 if 'mode' in field:
-                    if field['mode'] == 'REQUIRED':
+                    if field['mode'] == VALID_MODES['REQUIRED']:
                         self.required_fields.setdefault(
                             name, set()).add(field['name'])
-                    elif field['mode'] == 'REPEATED':
+                    elif field['mode'] == VALID_MODES['REPEATED']:
                         self.repeated_fields.setdefault(
                             name, set()).add(field['name'])
                 if name:
                     name = '.'.join([name, field['name']])
                 else:
                     name = field['name']
-                if field['type'] == 'RECORD':
+                if field['type'] == VALID_TYPES['RECORD']:
                     fields.extend([(name, f.copy()) for f in field['fields']])
 
-                field['validator'] = self.type_map[field['type']]
+                field['validator'] = self.type_map[VALID_TYPES[field['type']]]
                 field_dict[name] = field
             self.field_dict = field_dict
         except AssertionError, e:
@@ -229,7 +230,7 @@ class Schema(object):
         if 'mode' in field:
             assert field['mode'] in VALID_MODES, \
                 'if set, mode must be one of %s' % VALID_MODES.keys()
-        field['mode'] = VALID_MODES[field['mode']]
+            field['mode'] = VALID_MODES[field['mode']]
         if 'description' in field:
             assert len(field['description']) < 16384, \
                 'description can be no longer than 16K'
@@ -329,7 +330,6 @@ class Schema(object):
             if not value.tzinfo:
                 value.replace(tzinfo=self.default_tz)
             return datetime_to_unix(value)
-
 
         self.log.error('Passed an unknown type %r value %s to parse as a '
                        'timestamp.', value.__class__, value)
