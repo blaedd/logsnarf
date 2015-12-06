@@ -15,7 +15,8 @@ setup(
     author='David MacKinnon',
     author_email='blaedd@gmail.com',
     description='Tool to stream log files to BigQuery',
-  # setup_requires=['Sphinx', 'mock'],
+    tests_require=['mock', 'setuptools-trial'],
+    setup_requires=['Sphinx'],
     install_requires=[
         'python-dateutil',
         'oauth2client',
