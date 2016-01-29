@@ -45,6 +45,7 @@ class BigQueryService(object):
         self.dataset = dataset
         self.tables = {}
         self.creds = creds
+        self.updateTableList()
 
     @property
     def http(self):
@@ -150,6 +151,7 @@ class BigQueryService(object):
             # We need an extra argument for the result
             cb = lambda x, call, _table, _schema, _data, _id: call(
                 _table, _schema, _data, _id)
+            d.addCallback(lambda x: self.updateTableList())
             d.addCallback(cb, self.insertAll, table, table_schema, data,
                           upload_id)
         else:
