@@ -45,7 +45,6 @@ class BigQueryService(object):
         self.dataset = dataset
         self.tables = {}
         self.creds = creds
-        self.updateTableList()
 
     @property
     def http(self):
@@ -65,17 +64,20 @@ class BigQueryService(object):
     def updateTableList(self):
         """Update our internal cache of tables."""
         tables = self.service.tables()
+        new_table_dict = {}
         try:
-            table_list = tables.list(projectId=self.project,
-                                     datasetId=self.dataset).execute()
-            table_list = table_list.get('tables', None)
-            if table_list is None:
-                return
+            table_request = tables.list(projectId=self.project,
+                                        datasetId=self.dataset)
+            while(table_request != None):
+                table_list = table_request.execute()
+                if table_list: 
+                    new_table_dict.update(dict(
+                            [ (t['tableReference']['tableId'], True) \
+                              for t in table_list.get('tables', [])]
+                    ))
+                table_request = tables.list_next(table_request, table_list)
 
-            table_dict = dict(
-                [(t['tableReference']['tableId'], True) for t in table_list])
-            self.tables.clear()
-            self.tables.update(table_dict)
+            self.tables.update(new_table_dict)
         except (httplib.HTTPException, ssl.SSLError):
             self.log.exception('Error while retrieving list of tables')
 
@@ -151,7 +153,6 @@ class BigQueryService(object):
             # We need an extra argument for the result
             cb = lambda x, call, _table, _schema, _data, _id: call(
                 _table, _schema, _data, _id)
-            d.addCallback(lambda x: self.updateTableList())
             d.addCallback(cb, self.insertAll, table, table_schema, data,
                           upload_id)
         else:
