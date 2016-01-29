@@ -8,4 +8,4 @@ contain valid line separated JSON. You can however hook into post-decode hooks
 to conveniently munge or backfill fields based on the log data.
 
 """
-__version__ = '0.0.1'
+__version__ = '0.0.2'
