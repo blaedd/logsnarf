@@ -199,7 +199,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
         for entry in data:
             insert_id = entry.pop('_sha1')
             if insert_id is None:
-                insert_id = uuid.uuid4()
+                insert_id = uuid.uuid4().get_hex()
             if 'table' in entry:
                 table = entry.pop('table')
             else:
@@ -211,7 +211,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
                 table = self.table_name_schema.format(
                     YEAR=t.year, MONTH=t.month, DAY=t.day)
             self._linebuffer.append(
-                (table, {'insertId': insert_id.get_hex(), 'json': entry}))
+                (table, {'insertId': insert_id, 'json': entry}))
         current_bufsize = len(self._linebuffer)
         if current_bufsize >= self._batchsize:
             self.upload()
