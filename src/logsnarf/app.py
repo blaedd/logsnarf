@@ -5,13 +5,14 @@
 
 Application code to connect the various modules to do something useful..
 """
+import os
 import sys
 import logging
 import re
 
 from twisted.python import usage
 from twisted.internet import reactor
-from oauth2client.client import SignedJwtAssertionCredentials
+from oauth2client.service_account import ServiceAccountCredentials
 import simplejson as json
 
 from . import config
@@ -121,11 +122,10 @@ class App(object):
         """
         self.cfg = cfg
         self.section = section = cfg[section_name]
-        with cfg.openConfigFile(section['keyfile'], 'rb') as f:
-            creds = SignedJwtAssertionCredentials(
-                section['service_email'],
-                f.read(),
-                scope='https://www.googleapis.com/auth/bigquery')
+        creds = ServiceAccountCredentials.from_p12_keyfile(
+            section['service_email'],
+            os.path.join(cfg.saveConfigPath(), section['keyfile']),
+            scopes='https://www.googleapis.com/auth/bigquery')
         svc = service.BigQueryService(
             section['project_id'],
             section['dataset'],
