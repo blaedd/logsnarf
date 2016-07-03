@@ -13,6 +13,7 @@ import uuid
 import datetime
 import time
 
+from googleapiclient import errors as gerrors
 import simplejson as json
 import pytz
 from twisted.internet import abstract
@@ -260,13 +261,23 @@ class BigQueryUploader(abstract._ConsumerMixin):
                     table, self.schema.schema, by_table[table], upload_id)
                 result.addCallback(
                     self._uploadCB, upload_id, table, by_table[table])
-                result.addErrback(self._errback, upload_id, by_table[table])
+                result.addErrback(self._errback, upload_id, table, by_table[table])
                 self.uploadq[upload_id] = time.time()
                 if len(self.uploadq) > self.max_upload_n and not self.paused:
                     self.pauseConsuming()
 
-    def _errback(self, failure, upload_id, data):
+    def _errback(self, failure, upload_id, table, data):
         logging.error(failure)
+        if failure.check(gerrors.HttpError):
+            if failure.value.status == 503:
+                self.log.info('Retrying upload id %s', upload_id)
+                table = data[0]
+                d = self.service.insertAll(
+                    table, self.schema.schema, data, upload_id)
+                d.addCallback(self._uploadCB, upload_id, table, retry_lines)
+                d.addErrback(self._errback, upload_id, table, data)
+                return d
+
         logging.error('Removing failed upload from queue %s', upload_id)
         if upload_id in self.uploadq:
             del self.uploadq[upload_id]
@@ -340,6 +351,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
                 d = self.service.insertAll(
                     table, self.schema.schema, retry_lines, upload_id)
                 d.addCallback(self._uploadCB, upload_id, table, retry_lines)
+                d.addErrback(self._errback, upload_id, table, retry_lines)
                 return d
 
         if upload_id in self.uploadq:

@@ -26,6 +26,8 @@ VALID_TYPES = {
     'TIMESTAMP': 5,
     'RECORD': 6,
 }
+TYPE_N_TO_S = dict([ (b,a) for (a,b) in VALID_TYPES.items()])
+
 VALID_MODES = {
     'NULLABLE': 1,
     'REPEATED': 2,
@@ -40,7 +42,7 @@ def datetime_to_unix(dt):
     :return: unix timestamp (including microseconds)
     :rtype float:
     """
-    return time.mktime(dt.timetuple()) + dt.microsecond * 1e-6
+    return time.mktime(dt.utctimetuple()) + dt.microsecond * 1e-6
 
 
 # TODO: This should probably be wrapped in a consumer/producer class.
@@ -197,8 +199,7 @@ class Schema(object):
                     name = field['name']
                 if field['type'] == VALID_TYPES['RECORD']:
                     fields.extend([(name, f.copy()) for f in field['fields']])
-
-                field['validator'] = self.type_map[VALID_TYPES[field['type']]]
+                field['validator'] = self.type_map[TYPE_N_TO_S[field['type']]]
                 field_dict[name] = field
             self.field_dict = field_dict
         except AssertionError, e:

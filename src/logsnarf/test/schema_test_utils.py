@@ -66,6 +66,9 @@ class AutoSchemaTest(type):
                     except ImportError:
                         expected = None
                     if expected and hasattr(expected, 'result'):
+                        for k in output.copy():
+                            if k.startswith('_'):
+                               del output[k]
                         self.assertDictEqual(output, expected.result)
 
             if fail:
