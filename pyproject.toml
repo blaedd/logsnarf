@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "logsnarf"
+version = "0.1.0"
+description = "Tool to stream log files to BigQuery"
+authors = ["David MacKinnon <blaedd@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/blaedd/logsnarf"
+packages = [
+    { include = "logsnarf" },
+]
+
+[tool.poetry.scripts]
+snarf = "logsnarf.app:main"
+
+[tool.poetry.dependencies]
+python = "<3.11,>=3.8"
+python-dateutil = "^2.8.2"
+pytz = "^2021.3"
+pyxdg = "^0.27"
+simplejson = "^3.17.6"
+google-cloud-bigquery = "^2.32.0"
+Twisted = "^21.7.0"
+
+[tool.poetry.dev-dependencies]
+Sphinx = "^4.4.0"
+black = "^22.1.0"
+pre-commit = "^2.17.0"
+pylint = "^2.12.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
