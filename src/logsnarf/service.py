@@ -5,14 +5,14 @@
 
 import httplib
 import logging
-import sys
 import ssl
+import sys
 import threading
 import time
 import uuid
 
-from googleapiclient import discovery, errors
 import httplib2
+from googleapiclient import discovery, errors
 from twisted.internet import threads, task
 from twisted.python import failure
 
@@ -74,12 +74,12 @@ class BigQueryService(object):
         try:
             table_request = tables.list(projectId=self.project,
                                         datasetId=self.dataset)
-            while(table_request != None):
+            while table_request is not None:
                 table_list = table_request.execute()
-                if table_list: 
+                if table_list:
                     new_table_dict.update(dict(
-                            [ (t['tableReference']['tableId'], True) \
-                              for t in table_list.get('tables', [])]
+                        [(t['tableReference']['tableId'], True)
+                         for t in table_list.get('tables', [])]
                     ))
                 table_request = tables.list_next(table_request, table_list)
 
@@ -159,10 +159,10 @@ class BigQueryService(object):
 
             d = threads.deferToThread(self.createTable, table, table_schema)
             # We need an extra argument for the result
-            cb = lambda x, call, _table, _schema, _data, _id: call(
-                _table, _schema, _data, _id)
-            d.addCallback(cb, self.insertAll, table, table_schema, data,
-                          upload_id)
+            d.addCallback(
+                lambda x, call, _table, _schema, _data, _id: call(_table, _schema, _data, _id),
+                self.insertAll, table, table_schema, data,
+                upload_id)
         else:
             self.log.info('Starting upload %s', upload_id)
             d = threads.deferToThread(self._doInsertAll, table, data)

@@ -158,7 +158,7 @@ class LogSnarf(object):
     def checkPattern(self, path):
         """Check a path against our pattern.
 
-        :param twisted.python.filepath.FilePath: path to check
+        :param twisted.python.filepath.FilePath path: The path to check
         :returns bool: true if the path matches.
         """
         # Start with most specific (longest) path
