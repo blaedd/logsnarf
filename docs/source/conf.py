@@ -105,7 +105,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'haiku'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -267,12 +267,12 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/2.7', None),
+    'python': ('https://docs.python.org/2.7', None),
     'twisted': (
-        'http://twisted.readthedocs.org/en/releases-release-14.0.0-7039-3',
+        'https://docs.twisted.org/en/twisted-20.3.0/',
         None)
 }
-twisted_url = 'https://twistedmatrix.com/documents/14.0.1/api/'
+twisted_url = 'https://twisted.org/documents/20.3.0/api/'
 # def skip(app, what, name, obj, skip, options):
 # if name == '__init__':
 # return False
