@@ -7,19 +7,19 @@ A class that implements :twisted:`twisted.internet.interfaces.IConsumer` for
 uploading logs to BigQuery.
 """
 import codecs
-import hashlib
-import logging
-import uuid
 import datetime
+import logging
 import time
+import uuid
 
-from googleapiclient import errors as gerrors
-import simplejson as json
+import arrow
 import pytz
+import simplejson as json
+from googleapiclient import errors as gerrors
 from twisted.internet import abstract
+from twisted.internet import interfaces
 from twisted.internet import task
 from zope import interface
-from twisted.internet import interfaces
 
 from . import errors as lserrors
 
@@ -58,7 +58,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
         # Not accurate, just cached so we don't call it for every line
         # a looping call is more efficient than adding if then else
         # logic and a memoize decorator/property.
-        self.now = datetime.datetime.now(tz=self.default_tz)
+        self.now = arrow.now(tz=pytz.UTC)
         self._now_task = task.LoopingCall(self.__update_now)
         self._delay = 30
         self._linebuffer = []
@@ -73,7 +73,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
         self.max_upload_n = 30
 
     def __update_now(self):
-        self.now = datetime.datetime.now(tz=self.default_tz)
+        self.now = arrow.now(tz=pytz.UTC)
 
     def setDefaultTZ(self, tz):
         """Set the default timezone
@@ -132,7 +132,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
         shutdown. Make sure the producer is set to produce.
         """
         self.log.info('Started')
-        self.now = datetime.datetime.now(tz=self.default_tz)
+        self.now = arrow.now(tz=pytz.UTC)
         self.service.updateTableList()
         self._now_task.start(3600)
 
@@ -185,11 +185,11 @@ class BigQueryUploader(abstract._ConsumerMixin):
         lines = lines.split('\n')
         self._buf = lines.pop()
         json_objs = []
-        for l in lines:
+        for ln in lines:
             try:
-                json_objs.append(self.schema.loads(l))
+                json_objs.append(self.schema.loads(ln))
             except (ValueError, lserrors.ValidationError):
-                self.log.exception('Unable to decode line %s', l)
+                self.log.exception('Unable to decode line %s', ln)
         self.addData(json_objs)
 
     def addData(self, data):
@@ -205,7 +205,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
             else:
                 t = entry.get('time')
                 if t:
-                    t = datetime.datetime.fromtimestamp(t, tz=self.default_tz)
+                    t = arrow.get(t, tzinfo=self.default_tz)
                 else:
                     t = self.now
                 table = self.table_name_schema.format(
@@ -266,7 +266,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
                 if len(self.uploadq) > self.max_upload_n and not self.paused:
                     self.pauseConsuming()
 
-    def _errback(self, failure, upload_id, table, data):
+    def _errback(self, failure, upload_id, _table, data):
         logging.error(failure)
         if failure.check(gerrors.HttpError):
             if failure.value.status == 503:
@@ -274,7 +274,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
                 table = data[0]
                 d = self.service.insertAll(
                     table, self.schema.schema, data, upload_id)
-                d.addCallback(self._uploadCB, upload_id, table, retry_lines)
+                d.addCallback(self._uploadCB, upload_id, table, data)
                 d.addErrback(self._errback, upload_id, table, data)
                 return d
 
@@ -345,7 +345,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
                 self.log.warning('Adding %d lines from upload %s back into '
                                  'the queue. They will get a new upload_id',
                                  len(retry_lines), upload_id)
-                self._linebuffer.extend([(table, l) for l in retry_lines])
+                self._linebuffer.extend([(table, line) for line in retry_lines])
                 return
             else:
                 d = self.service.insertAll(

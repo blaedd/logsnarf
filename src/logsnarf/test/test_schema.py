@@ -1,14 +1,11 @@
 import cStringIO
-import datetime
 import logging
 
-import pytz
 from twisted.trial import unittest
 
 from .. import schema
 from .. import errors
 from . import schema_test_utils
-
 
 BASIC_SCHEMA = """
 [
@@ -55,7 +52,7 @@ class SchemaTestCase(unittest.TestCase):
         self.assertRaises(
             errors.ValidationError,
             schema.Schema,
-            cStringIO.StringIO(schema_json % ('x' * 16385, )),
+            cStringIO.StringIO(schema_json % ('x' * 16385,)),
         )
 
     def test_setFieldValidator(self):
@@ -77,17 +74,3 @@ class SchemaTestCase(unittest.TestCase):
                           self.sch.setFieldValidator,
                           'unfield',
                           lambda x, y: y)
-
-    def test_datetime_tounix(self):
-        in_date = datetime.datetime.utcnow()
-        ts = schema.datetime_to_unix(in_date)
-        out_date = datetime.datetime.fromtimestamp(ts)
-        self.assertEqual(in_date, out_date)
-
-    def test_datetime_tounix_with_tz(self):
-        tz = pytz.timezone('Australia/Sydney')
-        in_date = datetime.datetime.now(tz=tz)
-        ts = schema.datetime_to_unix(in_date)
-        out_date = datetime.datetime.fromtimestamp(ts, tz=pytz.UTC)
-        self.assertEqual(in_date, out_date)
-

@@ -6,15 +6,14 @@
 import datetime
 import hashlib
 import logging
-import time
 import re
 
-import simplejson as json
+import arrow
 import pytz
+import simplejson as json
 from dateutil import parser
 
 from . import errors
-
 
 REQUIRED_FIELD_KEYS = ['name', 'type']
 OTHER_FIELD_KEYS = ['mode', 'description', 'fields']
@@ -26,23 +25,13 @@ VALID_TYPES = {
     'TIMESTAMP': 5,
     'RECORD': 6,
 }
-TYPE_N_TO_S = dict([ (b,a) for (a,b) in VALID_TYPES.items()])
+TYPE_N_TO_S = dict([(b, a) for (a, b) in VALID_TYPES.items()])
 
 VALID_MODES = {
     'NULLABLE': 1,
     'REPEATED': 2,
     'REQUIRED': 3,
 }
-
-
-def datetime_to_unix(dt):
-    """Convert a datetime.datetime object into a unix timestamp.
-
-    :param datetime.datetime dt: datetime object to convert
-    :return: unix timestamp (including microseconds)
-    :rtype float:
-    """
-    return time.mktime(dt.utctimetuple()) + dt.microsecond * 1e-6
 
 
 # TODO: This should probably be wrapped in a consumer/producer class.
@@ -217,7 +206,7 @@ class Schema(object):
         """
         assert 'name' in field, 'name is required key for fields'
         assert 'type' in field, 'type is a required key for fields'
-        assert re.match(r'^[a-zA-Z0-9_]{1,128}$', field['name']), (
+        assert re.match(r'^\w{1,128}$', field['name']), (
             'name must consist of letters, numbers and underscores. No '
             'longer than 128 characters.')
 
@@ -255,7 +244,7 @@ class Schema(object):
         fields = set(root_obj.keys()) - set(self.ignore_fields)
         if not required_fields.issubset(fields):
             raise errors.ValidationError('Missing required fields %s' %
-                                         (required_fields - fields, ))
+                                         (required_fields - fields,))
         # done with sets
         fields = [(root_obj, '', f) for f in fields]
         while fields:
@@ -294,9 +283,10 @@ class Schema(object):
                     raise errors.ValidationError(*e.args)
         return root_obj
 
-    def toUnixTimestamp(self, _, value):
+    def toUnixTimestamp(self, _parent, value):
         """Validator for TIMESTAMP fields.
 
+        :param dict _parent: Parent of the value.
         :param str or integer or float value: The value to validate.
         :return: validated value
         :rtype: float
@@ -316,8 +306,8 @@ class Schema(object):
             try:
                 value = parser.parse(value)
                 if not value.tzinfo:
-                    value.replace(tzinfo=self.default_tz)
-                return datetime_to_unix(value)
+                    return arrow.get(value, self.default_tz).float_timestamp
+                return arrow.get(value).float_timestamp
             except ValueError:
                 self.log.debug(exc_info=True)
                 self.log.error('Unable to process timestamp field with '
@@ -327,10 +317,10 @@ class Schema(object):
         if isinstance(value, float) or isinstance(value, int):
             return value
 
-        if isinstance(value, datetime.datetime):
+        if hasattr(value, 'tzinfo'):
             if not value.tzinfo:
-                value.replace(tzinfo=self.default_tz)
-            return datetime_to_unix(value)
+                return arrow.get(value, tzinfo=self.default_tz).float_timestamp
+            return arrow.get(value).float_timestamp
 
         self.log.error('Passed an unknown type %r value %s to parse as a '
                        'timestamp.', value.__class__, value)
