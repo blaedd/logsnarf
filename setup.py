@@ -29,7 +29,7 @@ setup(
         'protobuf',
         'pytz',
         'pyxdg',
-        'rsa<4.6',
+        'rsa<4.8',
         'requests',
         'httplib2',
         'google-api-python-client<2',
