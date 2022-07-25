@@ -198,7 +198,7 @@ def main():
     else:
         try:
             config_apps = json.loads(sections['apps'])
-        except json.JSONDecodeError, e:
+        except json.JSONDecodeError:
             raise errors.ConfigError('No valid apps section in configuration')
     apps = []
     for s in config_apps:

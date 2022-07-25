@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import importlib
+import os
 
 from .. import errors
 from .. import schema
-
 
 SCHEMA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data',
                           'schema')
@@ -37,7 +36,7 @@ class AutoSchemaTest(type):
 
     def __new__(mcs, name, bases, attrs):
         def test_loadSchema(sch_name):
-            def _test_loadSchema(self):
+            def _test_loadSchema(_self):
                 sch_file = open(os.path.join(
                     SCHEMA_DIR, sch_name, 'schema.json'))
                 schema.Schema(sch_file)
@@ -68,7 +67,7 @@ class AutoSchemaTest(type):
                     if expected and hasattr(expected, 'result'):
                         for k in output.copy():
                             if k.startswith('_'):
-                               del output[k]
+                                del output[k]
                         self.assertDictEqual(output, expected.result)
 
             if fail:

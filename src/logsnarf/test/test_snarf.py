@@ -1,12 +1,12 @@
 import re
 
+import mock
 from twisted.internet import inotify
 from twisted.internet import interfaces
 from twisted.internet import reactor
 from twisted.python import filepath
 from twisted.trial import unittest
 from zope import interface
-import mock
 
 from logsnarf import snarf
 
@@ -59,9 +59,8 @@ class LogsnarfTestCase(unittest.TestCase):
                                                      autoAdd=True,
                                                      callbacks=[
                                                          self.snarf._snarfcb],
-                                                     mask=inotify.IN_MODIFY |
-                                                          inotify.IN_DELETE
-        )
+                                                     mask=inotify.IN_MODIFY | inotify.IN_DELETE
+                                                     )
         self.reactor.callWhenRunning.assert_called_once_with(
             self.snarf._do_backlog,
             watchPath,
