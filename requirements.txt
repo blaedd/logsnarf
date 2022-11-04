@@ -40,7 +40,7 @@ setuptools-rust==0.11.4
 simplejson==3.17.6
 six==1.16.0
 toml==0.10.2
-Twisted==20.3.0
+Twisted==22.10.0
 typing==3.10.0.0
 uritemplate==3.0.1
 urllib3==1.26.10
