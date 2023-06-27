@@ -6,14 +6,14 @@ from twisted.internet import interfaces
 from twisted.internet import reactor
 from twisted.python import filepath
 from twisted.trial import unittest
-from zope import interface
+from zope.interface import implementer
 
 from logsnarf import snarf
 
 
+@implementer(interfaces.IConsumer)
 class MockConsumer(object):
     """Mock consumer for testing logsnarf."""
-    interface.implements(interfaces.IConsumer)
 
     def __init__(self):
         self.data = []
@@ -109,7 +109,7 @@ class LogsnarfTestCase(unittest.TestCase):
         self.snarf.resumeProducing()
         # noinspection PyUnresolvedReferences
         self.assertListEqual(self.snarf.doRead.call_args_list,
-                             map(mock.call, paths))
+                             list(map(mock.call, paths)))
 
     def test_checkPattern(self):
         patterns = {

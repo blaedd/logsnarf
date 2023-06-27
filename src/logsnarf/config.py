@@ -8,9 +8,9 @@ See :doc:`configuration <configuration>` for details on how to configure
 logsnarf.
 """
 
-import collections
+from collections import abc
 import logging.config
-import ConfigParser
+import configparser
 import os
 import os.path
 
@@ -31,8 +31,8 @@ DEFAULTS = {
 }
 
 
-class ConfigSection(collections.Mapping):
-    """Class representing a ConfigParser section.
+class ConfigSection(abc.Mapping):
+    """Class representing a configparser section.
 
     Provides a mapping interface that attempts to do some vaguely sane
     type casting. No attempt to be smart, cache results etc is done.
@@ -43,8 +43,8 @@ class ConfigSection(collections.Mapping):
 
         :param name: section name
         :type name: str
-        :param cfg: ConfigParser object
-        :type cfg: ConfigParser.ConfigParser
+        :param cfg: configparser object
+        :type cfg: configparser.ConfigParser
         """
         super(ConfigSection, self).__init__()
         self.name = name
@@ -59,7 +59,7 @@ class ConfigSection(collections.Mapping):
                 return value
             except (ValueError, AttributeError):
                 pass
-            except ConfigParser.NoOptionError, e:
+            except configparser.NoOptionError as e:
                 raise ValueError(*e.args)
         return cfg.get(name, item)
 
@@ -71,10 +71,10 @@ class ConfigSection(collections.Mapping):
 
 
 # noinspection PyPep8Naming
-class Config(collections.Mapping):
+class Config(abc.Mapping):
     """Class to contain configuration information for Logsnarf.
 
-    This class wraps loading of the ConfigParser config file(s), initializing
+    This class wraps loading of the configparser config file(s), initializing
     logging (from a logging.ini), and proxies some methods from
     xdg.BaseDirectory module for creating/opening config or data files in
     appropriate places.
@@ -97,7 +97,7 @@ class Config(collections.Mapping):
         super(Config, self).__init__()
         self.resource_name = resource_name or 'logsnarf'
         self.config_file = config_file
-        self._cp = ConfigParser.SafeConfigParser(DEFAULTS)
+        self._cp = configparser.SafeConfigParser(DEFAULTS)
         self._sections = {}
 
     def __getitem__(self, item):
@@ -158,7 +158,7 @@ class Config(collections.Mapping):
         return open(
             os.path.join(self.saveConfigPath(), name), mode)
 
-    def openDataFile(self, name, mode):
+    def openDataFile(self, name, mode, *args, **kwargs):
         """Opens a file in the user data directory, with the given mode.
 
         :param name: the name of the data file to open
@@ -169,8 +169,7 @@ class Config(collections.Mapping):
         :rtype: file
 
         """
-        return open(
-            os.path.join(self.saveDataPath(), name), mode)
+        return open(os.path.join(self.saveDataPath(), name), mode, *args, **kwargs)
 
     def saveConfigPath(self, name=''):
         """Ensures the user save config path exists, and returns the path.

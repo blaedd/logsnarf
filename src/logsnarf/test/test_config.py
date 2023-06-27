@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 import os
 
 from twisted.trial import unittest
@@ -26,7 +26,7 @@ CONFIG = {
 
 class ConfigSectionTestCase(unittest.TestCase):
     def setUp(self):
-        self.cp = cp = ConfigParser.SafeConfigParser()
+        self.cp = cp = configparser.SafeConfigParser()
         for section in CONFIG:
             cp.add_section(section)
             for opt in CONFIG[section]:
@@ -80,7 +80,7 @@ class ConfigTestCase(unittest.TestCase):
         ]
         self.patchers.append(p)
 
-        p = mock.patch('ConfigParser.SafeConfigParser')
+        p = mock.patch('configparser.SafeConfigParser')
         o = p.start()
         self.configparser = o.return_value
         self.patchers.append(p)

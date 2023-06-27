@@ -6,7 +6,6 @@
 A class that implements :twisted:`twisted.internet.interfaces.IConsumer` for
 uploading logs to BigQuery.
 """
-import codecs
 import datetime
 import logging
 import time
@@ -19,14 +18,14 @@ from googleapiclient import errors as gerrors
 from twisted.internet import abstract
 from twisted.internet import interfaces
 from twisted.internet import task
-from zope import interface
+from zope.interface import implementer
 
 from . import errors as lserrors
 
 
 # noinspection PyProtectedMember
+@implementer(interfaces.IConsumer)
 class BigQueryUploader(abstract._ConsumerMixin):
-    interface.implements(interfaces.IConsumer)
 
     def __init__(self, schema_obj, svc, table_name_schema, reactor=None):
         """
@@ -199,7 +198,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
         for entry in data:
             insert_id = entry.pop('_sha1')
             if insert_id is None:
-                insert_id = uuid.uuid4().get_hex()
+                insert_id = uuid.uuid4().hex
             if 'table' in entry:
                 table = entry.pop('table')
             else:
@@ -249,7 +248,7 @@ class BigQueryUploader(abstract._ConsumerMixin):
             by_table.setdefault(table, []).append(l)
 
         for table in by_table:
-            upload_id = uuid.uuid4().get_hex()
+            upload_id = uuid.uuid4().hex
 
             if flush:  # we do things synchronously in flush mode
                 result = self.service.insertAll_s(
@@ -285,9 +284,8 @@ class BigQueryUploader(abstract._ConsumerMixin):
             from logsnarf import config
 
             c = config.Config()
-            with codecs.getwriter('utf-8')(
-                    c.openDataFile('failed_loglines', 'ab'),
-                    errors='ignore') as fail_log:
+            with c.openDataFile('failed_loglines', 'a', encoding='utf-8',
+                                errors='ignore') as fail_log:
                 json.dump(data, fail_log)
                 fail_log.write('\n')
             self.log.debug('Failed loglines for upload_id: %s written to disk',

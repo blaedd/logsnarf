@@ -267,12 +267,12 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/2.7', None),
+    'python': ('https://docs.python.org/3.11', None),
     'twisted': (
-        'https://docs.twisted.org/en/twisted-20.3.0/',
+        'https://docs.twisted.org/en/twisted-22.10.0/',
         None)
 }
-twisted_url = 'https://twisted.org/documents/20.3.0/api/'
+twisted_url = 'https://docs.twisted.org/en/twisted-22.10.0/api/'
 # def skip(app, what, name, obj, skip, options):
 # if name == '__init__':
 # return False

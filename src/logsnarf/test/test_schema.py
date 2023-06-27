@@ -1,11 +1,11 @@
-import cStringIO
+import io
 import logging
 
 from twisted.trial import unittest
 
-from .. import schema
-from .. import errors
 from . import schema_test_utils
+from .. import errors
+from .. import schema
 
 BASIC_SCHEMA = """
 [
@@ -32,7 +32,7 @@ class SchemaTestCaseAutoTests(unittest.TestCase):
 
 class SchemaTestCase(unittest.TestCase):
     def setUp(self):
-        self.sch = schema.Schema(cStringIO.StringIO(BASIC_SCHEMA))
+        self.sch = schema.Schema(io.StringIO(BASIC_SCHEMA))
         nullHandler = logging.NullHandler()
         self.log = logging.getLogger()
         self.log.handlers = [nullHandler]
@@ -48,11 +48,11 @@ class SchemaTestCase(unittest.TestCase):
     }
 ]"""
         # make sure it loads with a short description.
-        schema.Schema(cStringIO.StringIO(schema_json % "foo"))
+        schema.Schema(io.StringIO(schema_json % "foo"))
         self.assertRaises(
             errors.ValidationError,
             schema.Schema,
-            cStringIO.StringIO(schema_json % ('x' * 16385,)),
+            io.StringIO(schema_json % ('x' * 16385,)),
         )
 
     def test_setFieldValidator(self):

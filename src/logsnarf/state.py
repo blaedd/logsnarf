@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 # -*- test-case-name: logsnarf.test.test_state -*-
 
-"""Persistant state
+"""Persistent state
 
 Basically just a wrapper around a dict that saves on mutate. This doesn't
 change often, so is fine for our needs at the moment.
 """
 
-import os
-import os.path
-import collections
 import json
 import logging
+import os
+import os.path
+from collections import abc
 
 
-class State(collections.MutableMapping):
+class State(abc.MutableMapping):
     """A persistent dictionary.
 
     State is initially loaded from a json encoded file. State is saved to
@@ -39,7 +39,7 @@ class State(collections.MutableMapping):
             if os.path.exists(state_path):
                 self.log.error('Unable to open state file %s', state_path)
                 raise
-            self.log.warn('State file %s does not exist.', state_path)
+            self.log.warning('State file %s does not exist.', state_path)
             if not os.access(os.path.dirname(state_path), os.W_OK):
                 self.log.error('Unable to write to state file %s', state_path)
                 raise
@@ -67,5 +67,5 @@ class State(collections.MutableMapping):
 
     def save(self):
         """Save current state."""
-        with open(self.state_path, 'wb') as f:
+        with open(self.state_path, 'w') as f:
             json.dump(self._values, f, sort_keys=True)
