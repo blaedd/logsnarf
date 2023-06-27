@@ -28,5 +28,5 @@ service-identity = "^23.1.0"
 mock = "^5.0.2"
 
 [build-system]
-requires = ["poetry-core","doctuils", "sphinx-rtd-theme", "Sphinx"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

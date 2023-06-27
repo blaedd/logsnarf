@@ -42,7 +42,7 @@ class Schema(object):
 
      * load and verify schema files which should contain a JSON
        representation of a list of fields as defined by
-       https://cloud.google.com/bigquery/docs/reference/v2/tables#schema.fields
+       https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#TableFieldSchema
      * parse JSON strings, cooercing where able and appropriate fields to
        appropriate types as defined by the schema.
      * validate python objects against the BigQuery schema.

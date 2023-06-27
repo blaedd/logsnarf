@@ -146,9 +146,8 @@ class BigQueryService(object):
           one is generated if not supplied
         :type upload_id: str
         :return: a deferred for the results, the form of which is described at 
-                 https://cloud.google.com/bigquery/docs/reference/v2
-                 /tabledata/insertAll#response
-        :rtype: :twisted:`twisted.internet.Deferred`
+                 https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll#response-body
+        :rtype: :twisted:`twisted.internet.defer.Deferred`
         """
         upload_id = upload_id or uuid.uuid4().hex
 
@@ -178,8 +177,7 @@ class BigQueryService(object):
         :type data: list(dict)
         :return: Results of the insert.
         :rtype:
-          https://cloud.google.com/bigquery/docs/reference/v2/tabledata
-          /insertAll#response
+          https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll#response-body
         """
         tabledata = self.service.tabledata()
         insert = tabledata.insertAll(
@@ -206,8 +204,7 @@ class BigQueryService(object):
         :type upload_id: str
         :return: Results of the insert.
         :rtype:
-          https://cloud.google.com/bigquery/docs/reference/v2/tabledata
-          /insertAll#response
+          https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll#response-body
           
         """
         upload_id = upload_id or uuid.uuid4().hex
