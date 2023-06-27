@@ -1,10 +1,13 @@
 [tool.poetry]
 name = "logsnarf"
-version = "0.1.0"
+version = "0.2.0-alpha1"
 description = ""
 authors = ["David MacKinnon <blaedd@gmail.com>"]
 readme = "README.md"
 packages = [{include = "logsnarf", from = "src"}]
+
+[tool.poetry.scripts]
+snarf = 'logsnarf.app:main'
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -26,6 +29,10 @@ service-identity = "^23.1.0"
 
 [tool.poetry.group.dev.dependencies]
 mock = "^5.0.2"
+
+
+[tool.poetry.group.docs.dependencies]
+sphinx-rtd-theme = "^1.2.2"
 
 [build-system]
 requires = ["poetry-core"]
