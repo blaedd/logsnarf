@@ -30,9 +30,7 @@ class MissingConfigValue(ConfigError):
         self.msg = msg
 
     def __str__(self):
-        print "Missing configuration item section: %s item: %s %s" % (
-            self.section, self.item, self.msg
-        )
+        print(f"Missing configuration item section: {self.section} item: {self.item} {self.msg}")
 
 
 class ServiceError(Error):

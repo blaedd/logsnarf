@@ -3,7 +3,6 @@
 # pylint: disable=invalid-name
 """BigQuery service."""
 
-import httplib
 import logging
 import ssl
 import sys
@@ -84,7 +83,7 @@ class BigQueryService(object):
                 table_request = tables.list_next(table_request, table_list)
 
             self.tables.update(new_table_dict)
-        except (httplib.HTTPException, ssl.SSLError):
+        except (errors.Error, ssl.SSLError):
             self.log.exception('Error while retrieving list of tables')
 
     def createTable(self, name, table_schema):
@@ -120,7 +119,7 @@ class BigQueryService(object):
                 projectId=self.project,
                 datasetId=self.dataset,
                 body=body).execute()
-        except errors.HttpError, e:
+        except errors.HttpError as e:
             if e.resp['status'] != '409':
                 self.log.exception('failed to insert table %s', name)
                 self.log.debug(e.resp)
@@ -151,7 +150,7 @@ class BigQueryService(object):
                  /tabledata/insertAll#response
         :rtype: :twisted:`twisted.internet.Deferred`
         """
-        upload_id = upload_id or uuid.uuid4().get_hex()
+        upload_id = upload_id or uuid.uuid4().hex
 
         if table not in self.tables:
             self.log.info('Table does not yet exist %s', table)
@@ -211,7 +210,7 @@ class BigQueryService(object):
           /insertAll#response
           
         """
-        upload_id = upload_id or uuid.uuid4().get_hex()
+        upload_id = upload_id or uuid.uuid4().hex
 
         if table not in self.tables:
             self.log.info('Table does not yet exist %s', table)

@@ -76,7 +76,7 @@ class Schema(object):
         self.repeated_fields = {}
 
         self.type_map = {
-            'STRING': lambda x, y: unicode(y),
+            'STRING': lambda x, y: y,
             'INTEGER': lambda x, y: int(y),
             'FLOAT': lambda x, y: float(y),
             'TIMESTAMP': self.toUnixTimestamp,
@@ -146,7 +146,7 @@ class Schema(object):
 
         This applies all schema checks and post-processors.
 
-        :param unicode json_string: utf-8 encoded string containing a JSON
+        :param string|bytes json_string: utf-8 encoded string containing a JSON
                                     document.
         :return: The JSON document as a python object
         :rtype: dict or list or integer or float or unicode
@@ -157,12 +157,12 @@ class Schema(object):
             if the string does not contain a valid JSON document.
 
         """
-        if not isinstance(json_string, unicode):
+        if isinstance(json_string, bytes):
             json_string = json_string.decode('utf-8')
         obj = self._postProcess(
             json.loads(json_string, encoding='utf-8',
                        object_hook=self._load_hook))
-        obj['_sha1'] = hashlib.sha1(json_string).hexdigest()
+        obj['_sha1'] = hashlib.sha1(json_string.encode('utf-8')).hexdigest()
         return obj
 
     def validateSchema(self):
@@ -191,7 +191,7 @@ class Schema(object):
                 field['validator'] = self.type_map[TYPE_N_TO_S[field['type']]]
                 field_dict[name] = field
             self.field_dict = field_dict
-        except AssertionError, e:
+        except AssertionError as e:
             raise errors.ValidationError(*e.args)
 
     @staticmethod
@@ -266,7 +266,7 @@ class Schema(object):
                         try:
                             obj[field][i] = self.field_dict[name]['validator'](
                                 root_obj, obj[field][i])
-                        except ValueError, e:
+                        except ValueError as e:
                             raise errors.ValidationError(*e.args)
                     continue
             # For records, add the record fields to our stack.
@@ -279,7 +279,7 @@ class Schema(object):
                 try:
                     obj[field] = self.field_dict[name]['validator'](root_obj,
                                                                     obj[field])
-                except ValueError, e:
+                except ValueError as e:
                     raise errors.ValidationError(*e.args)
         return root_obj
 
@@ -296,7 +296,7 @@ class Schema(object):
         """
 
         # It might be a unix timestamp, but as a string.
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             try:
                 value = float(value)
                 return value
@@ -309,9 +309,9 @@ class Schema(object):
                     return arrow.get(value, self.default_tz).float_timestamp
                 return arrow.get(value).float_timestamp
             except ValueError:
-                self.log.debug(exc_info=True)
                 self.log.error('Unable to process timestamp field with '
-                               'value %s', value)
+                               'value %s', value, exc_info=True)
+
                 raise
 
         if isinstance(value, float) or isinstance(value, int):

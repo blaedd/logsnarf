@@ -20,18 +20,18 @@ import logging
 import os
 import os.path
 
-from zope import interface
 from twisted.internet import inotify
 from twisted.internet import interfaces
 from twisted.python import filepath
+from zope.interface import implementer
 
 
+@implementer(interfaces.IPushProducer)
 class LogSnarf(object):
     """Main logsnarf class.
     
     implements :twisted:`twisted.internet.interfaces.IPushProducer`
     """
-    interface.implements(interfaces.IPushProducer)
 
     def __init__(self, state_obj, consumer, reactor=None):
         """Initialize a LogSnarf object.

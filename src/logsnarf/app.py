@@ -35,13 +35,13 @@ def install_custom_verifiers(sch, default_domain):
     # noinspection PyUnusedLocal
     def add_default_domain(unused_arg, value):
         if len(value.split('.')) == 1:
-            return u'{}.{}'.format(value, default_domain)
-        return unicode(value)
+            return '{}.{}'.format(value, default_domain)
+        return value
 
     def fix_pid_mess(root_obj, value):
         if value is None:
             return 0
-        if isinstance(value, basestring) and '[' in value:
+        if isinstance(value, str) and '[' in value:
             pidparts = value.split('[')
             pid = int(pidparts[-1])
             pname = pidparts[0]
@@ -185,9 +185,9 @@ def main():
     opts = Options()
     try:
         opts.parseOptions()
-    except usage.UsageError, e:
-        print "%s: %s" % (sys.argv[0], e)
-        print "%s: Try --help for usage details." % (sys.argv[0])
+    except usage.UsageError as e:
+        print("%s: %s" % (sys.argv[0], e))
+        print("%s: Try --help for usage details." % (sys.argv[0]))
         sys.exit(1)
     cfg = config.Config(resource_name=opts['resource_name'],
                         config_file=opts['config_file'])
